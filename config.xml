@@ -16,6 +16,7 @@
       <row path="https://skk-dev.github.io/dict/SKK-JISYO.JIS2004.gz" enabled="1" />
       <row path="https://raw.githubusercontent.com/skk-dev/dict/master/SKK-JISYO.emoji" enabled="1" />
       <row path="https://skk-dev.github.io/dict/SKK-JISYO.itaiji.gz" enabled="1" />
+      <row path="https://skk-dev.github.io/dict/SKK-JISYO.lisp.gz" enabled="1" />
     </list>
   </section>
   <section name="server">
@@ -48,7 +49,7 @@
     <key name="entogglekana" value="0" />
     <key name="setbydirect" value="0" />
     <key name="compmultinum" value="5" />
-    <key name="stacompmulti" value="0" />
+    <key name="stacompmulti" value="1" />
     <key name="dynamiccomp" value="1" />
     <key name="dyncompmulti" value="1" />
     <key name="compuserdic" value="1" />
@@ -63,14 +64,14 @@
   </section>
   <section name="display">
     <key name="maxwidth" value="320" />
-    <key name="colorbg" value="0xFFFFFF" />
-    <key name="colorfr" value="0x000000" />
-    <key name="colorse" value="0xFF0000" />
-    <key name="colorco" value="0x808080" />
-    <key name="colorca" value="0x000000" />
-    <key name="colorsc" value="0x808080" />
-    <key name="coloran" value="0x808080" />
-    <key name="colorno" value="0x000000" />
+    <key name="colorbg" value="0x1E1E1E" />
+    <key name="colorfr" value="0x6E6E6E" />
+    <key name="colorse" value="0xD69C56" />
+    <key name="colorco" value="0x9D9D9D" />
+    <key name="colorca" value="0xD4D4D4" />
+    <key name="colorsc" value="0x9D9D9D" />
+    <key name="coloran" value="0x9D9D9D" />
+    <key name="colorno" value="0x9D9D9D" />
     <key name="drawapi" value="1" />
     <key name="colorfont" value="1" />
     <key name="untilcandlist" value="2" />
@@ -84,14 +85,14 @@
     <key name="showromanjlat" value="0" />
     <key name="showmodeinl" value="1" />
     <key name="showmodeinltm" value="3000" />
-    <key name="colormc" value="0xFFFFFF" />
-    <key name="colormf" value="0x000000" />
-    <key name="colorhr" value="0x0000C0" />
-    <key name="colorkt" value="0x00C000" />
-    <key name="colorka" value="0xC00080" />
-    <key name="colorjl" value="0xC00000" />
-    <key name="colorac" value="0xC08000" />
-    <key name="colordr" value="0x808080" />
+    <key name="colormc" value="0x1E1E1E" />
+    <key name="colormf" value="0xD4D4D4" />
+    <key name="colorhr" value="0x756CF0" />
+    <key name="colorkt" value="0x79C398" />
+    <key name="colorka" value="0xDD78C6" />
+    <key name="colorjl" value="0xEFAF61" />
+    <key name="colorac" value="0xC2B656" />
+    <key name="colordr" value="0x9D9D9D" />
   </section>
   <section name="displayattr">
     <key name="inputmark" value="0,0,0x000000,0,0xFFFFFF,2,0,0,0x000000,0" />
@@ -571,6 +572,15 @@
       <row ro="z/" hi="・" ka="・" an="･" so="0" />
       <row ro="z*" hi="※" ka="※" an="※" so="0" />
       <row ro="z0" hi="○" ka="○" an="○" so="0" />
+      <row ro="z1" hi="①" ka="①" an="①" so="0" />
+      <row ro="z2" hi="②" ka="②" an="②" so="0" />
+      <row ro="z3" hi="③" ka="③" an="③" so="0" />
+      <row ro="z4" hi="④" ka="④" an="④" so="0" />
+      <row ro="z5" hi="⑤" ka="⑤" an="⑤" so="0" />
+      <row ro="z6" hi="⑥" ka="⑥" an="⑥" so="0" />
+      <row ro="z7" hi="⑦" ka="⑦" an="⑦" so="0" />
+      <row ro="z8" hi="⑧" ka="⑧" an="⑧" so="0" />
+      <row ro="z9" hi="⑨" ka="⑨" an="⑨" so="0" />
       <row ro="z@" hi="◎" ka="◎" an="◎" so="0" />
       <row ro="z(" hi="（" ka="（" an="（" so="0" />
       <row ro="z)" hi="）" ka="）" an="）" so="0" />
