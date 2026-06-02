@@ -14,6 +14,8 @@
       <row path="https://skk-dev.github.io/dict/SKK-JISYO.JIS2.gz" enabled="1" />
       <row path="https://skk-dev.github.io/dict/SKK-JISYO.JIS3_4.gz" enabled="1" />
       <row path="https://skk-dev.github.io/dict/SKK-JISYO.JIS2004.gz" enabled="1" />
+      <row path="https://raw.githubusercontent.com/skk-dev/dict/master/SKK-JISYO.emoji" enabled="1" />
+      <row path="https://skk-dev.github.io/dict/SKK-JISYO.itaiji.gz" enabled="1" />
     </list>
   </section>
   <section name="server">
@@ -47,7 +49,7 @@
     <key name="setbydirect" value="0" />
     <key name="compmultinum" value="5" />
     <key name="stacompmulti" value="0" />
-    <key name="dynamiccomp" value="0" />
+    <key name="dynamiccomp" value="1" />
     <key name="dyncompmulti" value="1" />
     <key name="compuserdic" value="1" />
     <key name="compincback" value="0" />
@@ -567,6 +569,9 @@
       <row ro="z~" hi="〜" ka="〜" an="〜" so="0" />
       <row ro="z." hi="…" ka="…" an="…" so="0" />
       <row ro="z/" hi="・" ka="・" an="･" so="0" />
+      <row ro="z*" hi="※" ka="※" an="※" so="0" />
+      <row ro="z0" hi="○" ka="○" an="○" so="0" />
+      <row ro="z@" hi="◎" ka="◎" an="◎" so="0" />
       <row ro="z(" hi="（" ka="（" an="（" so="0" />
       <row ro="z)" hi="）" ka="）" an="）" so="0" />
       <row ro="z[" hi="『" ka="『" an="『" so="0" />
