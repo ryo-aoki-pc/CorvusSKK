@@ -87,7 +87,59 @@
 
 5. **常駐（自動起動）設定**
 
-   Windows の **タスクスケジューラ**で「ログオン時に実行」「最上位の特権」「非表示（ウィンドウを表示しない）」のタスクとして上記の起動コマンドを登録すると、サインインのたびに自動でサーバーが立ち上がります。
+   サインインのたびに yaskkserv2 を自動起動するには、**タスクスケジューラ**で登録するのが確実です（コンソールウィンドウを出さずにバックグラウンド常駐できます）。以下では `C:\tools\yaskkserv2\` に `yaskkserv2.exe` と `dictionary.yaskkserv2` を置いた前提で説明します（パスは環境に合わせて読み替えてください）。
+
+   #### 方法 A: `schtasks` コマンドで一括登録（推奨）
+
+   管理者権限の PowerShell で以下を実行します。`/RL HIGHEST`（最上位の特権）と `/IT` の組み合わせで、ログオン時にウィンドウ非表示で起動します。
+
+   ```powershell
+   schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
+     /TR "C:\tools\yaskkserv2\yaskkserv2.exe --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2"
+   ```
+
+   - 登録の確認: `schtasks /Query /TN "yaskkserv2"`
+   - すぐに起動して動作確認: `schtasks /Run /TN "yaskkserv2"`
+   - 解除（削除）: `schtasks /Delete /TN "yaskkserv2" /F`
+
+   > **コンソールが一瞬見える場合**: `yaskkserv2.exe` はコンソールアプリのため、`/TR` で直接起動するとログオン時に一瞬ウィンドウが表示されることがあります。完全に非表示にしたい場合は、後述の起動用ラッパー（VBScript）を `/TR` に指定してください。
+
+   #### 方法 B: タスクスケジューラ GUI で登録
+
+   1. `taskschd.msc` を起動 →「基本タスクの作成」
+   2. 名前: `yaskkserv2`
+   3. トリガー: **「ログオン時」**
+   4. 操作: **「プログラムの開始」**
+      - プログラム/スクリプト: `C:\tools\yaskkserv2\yaskkserv2.exe`
+      - 引数の追加: `--listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2`
+   5. 作成後、タスクのプロパティを開き
+      - 「全般」タブ → **「最上位の特権で実行する」**にチェック
+      - 同タブ → **「ユーザーがログオンしているかどうかにかかわらず実行する」**は外したまま（ログオン中のみ常駐させる場合）
+      - 「設定」タブ → **「タスクを停止するまでの時間」のチェックを外す**（常駐し続けるため）
+      - 「条件」タブ → 「コンピューターを AC 電源で使用している場合のみ…」のチェックを外す（ノート PC でも常駐させる場合）
+
+   #### コンソールを完全に隠す（任意）
+
+   ウィンドウを一切出さずに常駐させたい場合は、VBScript のラッパー経由で起動します。`C:\tools\yaskkserv2\start-hidden.vbs` を作成:
+
+   ```vbscript
+   ' start-hidden.vbs — yaskkserv2 をウィンドウ非表示で起動
+   CreateObject("WScript.Shell").Run _
+     """C:\tools\yaskkserv2\yaskkserv2.exe"" --listen-address 127.0.0.1 --port 1178 ""C:\tools\yaskkserv2\dictionary.yaskkserv2""", 0, False
+   ```
+
+   タスクの `/TR`（または GUI のプログラム）を次のように差し替えます:
+
+   ```powershell
+   schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
+     /TR "wscript.exe C:\tools\yaskkserv2\start-hidden.vbs"
+   ```
+
+   #### 方法 C: スタートアップフォルダ（手軽だが非推奨）
+
+   `Win+R` → `shell:startup` で開くフォルダに上記 `start-hidden.vbs` へのショートカットを置くだけでもログオン時に起動できます。ただし特権昇格やウィンドウ制御が効きにくいため、基本は方法 A / B を推奨します。
+
+   > **更新・再起動**: 辞書を作り直したときや設定を変えたときは、`schtasks /End /TN "yaskkserv2"`（または タスクマネージャーで `yaskkserv2.exe` を終了）してから `schtasks /Run /TN "yaskkserv2"` で再起動します。
 
 6. **動作確認**
 
