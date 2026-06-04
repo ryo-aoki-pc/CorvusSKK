@@ -21,10 +21,10 @@
   </section>
   <section name="server">
     <key name="serv" value="1" />
-    <key name="host" value="localhost" />
+    <key name="host" value="127.0.0.1" />
     <key name="port" value="1178" />
     <key name="encoding" value="0" />
-    <key name="timeout" value="200" />
+    <key name="timeout" value="100" />
   </section>
   <section name="userdict">
     <key name="backupdir" value="%APPDATA%\CorvusSKK" />
