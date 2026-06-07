@@ -216,9 +216,13 @@ A S D F J K L G H
 
 > このセクションは **任意**です。SKK サーバーを使わない場合は読み飛ばして構いません。
 
-変換を高速化したい場合は、完全オフラインで動作する [yaskkserv2](https://github.com/wachikun/yaskkserv2) を `127.0.0.1:1178` で常駐させます。yaskkserv2 は辞書を事前にバイナリ化してローカルで引くため応答がサブミリ秒で、ネットワーク越しの google-ime-skk のような遅延が乗りません。
+変換を高速化したい場合は、[yaskkserv2](https://github.com/wachikun/yaskkserv2) を `127.0.0.1:1178` で常駐させます。yaskkserv2 は辞書を事前にバイナリ化してローカルで引くため応答がサブミリ秒です。本リポジトリでは、**ローカル辞書で見つからない語のみ Google 日本語入力にフォールバックし、その結果をキャッシュする**構成を前提に設定しています。
 
-> **この `config.xml` の設定**: `serv=1` / `host=127.0.0.1` / `port=1178` / `encoding=0`（EUC-JP）/ `timeout=100`（ms）で設定済みです。`timeout=100` は「応答が間に合わなければ候補が欠けてもよいので遅延を最短にする」方針で、サーバー停止・遅延時も待ちは最大 100ms で頭打ちになります。
+> **この `config.xml` の設定**: `serv=1` / `host=127.0.0.1` / `port=1178` / `encoding=0`（EUC-JP）/ `timeout=1500`（ms）で設定済みです。
+>
+> `timeout=1500` は **Google フォールバックの応答を取りこぼさない**ための値です。yaskkserv2 は未登録語を Google に問い合わせる際、内部で最大 `--google-timeout-milliseconds`（既定 1000ms）待ってから応答します。CorvusSKK 側のタイムアウトがこれより短いと Google 候補が返る前に打ち切られてしまうため、1000ms ＋ 通信・処理の余裕を見て 1500ms にしています。
+>
+> ローカル辞書でヒットする語はサブミリ秒で応答するため、**通常の入力が 1500ms 待たされることはありません**。待ちが伸びるのは Google 問い合わせが発生する未登録語のみで、一度引けばキャッシュされ次回以降は高速です。Google フォールバックを使わない（純オフライン）場合は、`timeout` を `100`〜`300` 程度に下げても構いません。
 
 ### 導入手順
 
@@ -284,13 +288,19 @@ yaskkserv2_make_dictionary --dictionary-filename C:\tools\yaskkserv2\dictionary.
 
 #### 3. サーバーの起動
 
-`127.0.0.1:1178` で待ち受けます。
+`127.0.0.1:1178` で待ち受けます。本リポジトリの推奨構成（**未登録語のみ Google 日本語入力にフォールバックし、結果をキャッシュ**）では次のように起動します。
 
 ```powershell
-yaskkserv2 --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2
+yaskkserv2 --listen-address 127.0.0.1 --port 1178 `
+  --google-japanese-input notfound `
+  --google-cache-filename C:\tools\yaskkserv2\google-cache.json `
+  C:\tools\yaskkserv2\dictionary.yaskkserv2
 ```
 
-未登録語のみ Google 予測変換にフォールバックさせたい場合は `--google-japanese-input=notfound` 等を併用すると、ローカルの速さと予測変換を両取りできます（オプション詳細は[コマンドラインリファレンス](#コマンドラインリファレンス)）。
+- `--google-japanese-input notfound`: ローカル辞書で見つからない語のときだけ Google に問い合わせ（ローカルの速さを保ちつつ語彙を補う）
+- `--google-cache-filename ...`: Google の変換結果をファイルにキャッシュし、次回以降は再問い合わせせず高速化
+
+> Google フォールバックを使わず**完全オフライン**で運用する場合は、`--google-*` を外して `yaskkserv2 --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2` だけで起動し、`config.xml` の `timeout` も `100`〜`300` に下げて構いません。各オプションの詳細は[コマンドラインリファレンス](#コマンドラインリファレンス)を参照。
 
 #### 4. 動作確認
 
@@ -298,11 +308,11 @@ yaskkserv2 --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary
 Test-NetConnection 127.0.0.1 -Port 1178
 ```
 
-接続できたら CorvusSKK で `▽` 変換し、候補が即座に表示されることを確認します。サーバーを停止すると `timeout=100` 後にローカル辞書のみで変換されます（候補が一部欠けることがありますが遅延は最小です）。
+接続できたら CorvusSKK で `▽` 変換し、ローカル辞書の語が即座に表示されることを確認します。辞書に無い語を変換すると Google フォールバックが働き（初回はネット往復のぶん待ちますが、`google-cache.json` にキャッシュされ次回以降は高速）、サーバーを停止している間は `timeout=1500` 後にローカル辞書のみで変換されます。
 
 ### 自動起動（常駐）
 
-サインインのたびに yaskkserv2 を自動起動するには、**タスクスケジューラ**で登録するのが確実です（コンソールウィンドウを出さずにバックグラウンド常駐できます）。以下では `C:\tools\yaskkserv2\` に `yaskkserv2.exe` と `dictionary.yaskkserv2` を置いた前提で説明します（パスは環境に合わせて読み替えてください）。
+サインインのたびに yaskkserv2 を自動起動するには、**タスクスケジューラ**で登録するのが確実です（コンソールウィンドウを出さずにバックグラウンド常駐できます）。以下では `C:\tools\yaskkserv2\` に `yaskkserv2.exe` と `dictionary.yaskkserv2` を置いた前提で、推奨構成（Google フォールバック＋キャッシュ）の起動引数で説明します（パスや要否は環境に合わせて読み替えてください）。
 
 #### 方法 A: `schtasks` コマンドで一括登録（推奨）
 
@@ -310,7 +320,7 @@ Test-NetConnection 127.0.0.1 -Port 1178
 
 ```powershell
 schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
-  /TR "C:\tools\yaskkserv2\yaskkserv2.exe --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2"
+  /TR "C:\tools\yaskkserv2\yaskkserv2.exe --listen-address 127.0.0.1 --port 1178 --google-japanese-input notfound --google-cache-filename C:\tools\yaskkserv2\google-cache.json C:\tools\yaskkserv2\dictionary.yaskkserv2"
 ```
 
 - 登録の確認: `schtasks /Query /TN "yaskkserv2"`
@@ -326,7 +336,7 @@ schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
 3. トリガー: **「ログオン時」**
 4. 操作: **「プログラムの開始」**
    - プログラム/スクリプト: `C:\tools\yaskkserv2\yaskkserv2.exe`
-   - 引数の追加: `--listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2`
+   - 引数の追加: `--listen-address 127.0.0.1 --port 1178 --google-japanese-input notfound --google-cache-filename C:\tools\yaskkserv2\google-cache.json C:\tools\yaskkserv2\dictionary.yaskkserv2`
 5. 作成後、タスクのプロパティを開き
    - 「全般」タブ → **「最上位の特権で実行する」**にチェック
    - 「設定」タブ → **「タスクを停止するまでの時間」のチェックを外す**（常駐し続けるため）
@@ -339,7 +349,7 @@ schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
 ```vbscript
 ' start-hidden.vbs — yaskkserv2 をウィンドウ非表示で起動
 CreateObject("WScript.Shell").Run _
-  """C:\tools\yaskkserv2\yaskkserv2.exe"" --listen-address 127.0.0.1 --port 1178 ""C:\tools\yaskkserv2\dictionary.yaskkserv2""", 0, False
+  """C:\tools\yaskkserv2\yaskkserv2.exe"" --listen-address 127.0.0.1 --port 1178 --google-japanese-input notfound --google-cache-filename ""C:\tools\yaskkserv2\google-cache.json"" ""C:\tools\yaskkserv2\dictionary.yaskkserv2""", 0, False
 ```
 
 タスクの `/TR`（または GUI のプログラム）を次のように差し替えます:
@@ -446,7 +456,8 @@ git commit -m "変更内容の説明"
 |---|---|
 | 設定が反映されない | IME をオフ → オン。それでも反映されない場合はサインアウト → サインイン |
 | 候補がほとんど出ない | 辞書のダウンロード失敗の可能性。ネットワークを確認し、`%TMP%\CorvusSKK` を削除して IME をオフ → オン |
-| 変換が遅い・引っかかる | SKK サーバー（`127.0.0.1:1178`）が起動していない場合は、[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)で常駐させるか、設定ダイアログ「辞書」タブでサーバーを無効化。`config.xml` は `timeout=100`（ms）で応答待ちを短く設定済み |
+| 変換が遅い・引っかかる | SKK サーバー（`127.0.0.1:1178`）が起動していない場合は、[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)で常駐させるか、設定ダイアログ「辞書」タブでサーバーを無効化。サーバー停止中は毎変換で `timeout=1500`（ms）待つため、使わないなら無効化を推奨 |
+| Google フォールバックの候補が出ない | CorvusSKK の `timeout`（1500ms）がサーバーの `--google-timeout-milliseconds`（既定 1000ms）より短いと打ち切られる。Google 側を変えたら `timeout` も見直す。完全オフライン運用なら `--google-*` を外し `timeout` を下げる |
 | サーバーの候補が文字化けする / 出ない | エンコーディング不一致。[コマンドラインリファレンス](#コマンドラインリファレンス)の「3 点セットで揃える」を確認 |
 | 絵文字が変換できない | Direct2D ＋ カラーフォントの表示設定が必要（この設定では有効済み） |
 | 候補一覧のフォントがおかしい | HackGen Console NF がインストールされているか確認 |
