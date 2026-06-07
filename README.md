@@ -61,7 +61,31 @@
 
 1. **入手**
 
-   [リリースページ](https://github.com/wachikun/yaskkserv2/releases) から `yaskkserv2` / `yaskkserv2_make_dictionary` を入手するか、Rust 環境で `cargo build --release` でビルドします。
+   > **注意**: yaskkserv2 は **crates.io に公開されていません**。そのため `cargo install yaskkserv2` や `cargo binstall yaskkserv2` は `yaskkserv2 is not found` で失敗します。また**リリースのビルド済みバイナリは Linux / macOS 用のみ**で Windows 版はありません。Windows では **Rust ツールチェーンで自前ビルド**するのが基本です。
+
+   事前に [rustup](https://rustup.rs/) で Rust（`cargo`）を導入しておきます（Windows では Visual Studio Build Tools / MSVC が必要です）。
+
+   #### 方法 A: `cargo install --git`（推奨・一行）
+
+   GitHub リポジトリから直接ビルドして導入します。単一パッケージのため、`yaskkserv2` と `yaskkserv2_make_dictionary` の両方が `%USERPROFILE%\.cargo\bin`（既定で PATH 済み）に入ります。
+
+   ```powershell
+   cargo install --git https://github.com/wachikun/yaskkserv2
+   ```
+
+   導入後、`yaskkserv2 --version` で確認できます。
+
+   #### 方法 B: クローンしてビルド（公式手順）
+
+   ```powershell
+   git clone https://github.com/wachikun/yaskkserv2
+   cd yaskkserv2
+   cargo build --release
+   ```
+
+   ビルド済みバイナリは `target\release\yaskkserv2.exe` と `target\release\yaskkserv2_make_dictionary.exe` に生成されます。任意のフォルダ（例: `C:\tools\yaskkserv2\`）へコピーして使います。
+
+   > **Windows でビルドが通らない場合**: yaskkserv2 は主に Linux / macOS 向けに開発されています。MSVC で素直にビルドできないときは、**WSL2** 上で `cargo build --release` してサーバーを起動する方法もあります（WSL2 でリッスンしたポートは Windows 側から `localhost:1178` で到達できます）。
 
 2. **辞書ソースの用意**
 
