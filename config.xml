@@ -48,13 +48,13 @@
     <key name="addcandktkn" value="1" />
     <key name="entogglekana" value="0" />
     <key name="setbydirect" value="0" />
-    <key name="compmultinum" value="5" />
+    <key name="compmultinum" value="7" />
     <key name="stacompmulti" value="1" />
-    <key name="dynamiccomp" value="1" />
+    <key name="dynamiccomp" value="0" />
     <key name="dyncompmulti" value="1" />
     <key name="compuserdic" value="1" />
-    <key name="compincback" value="0" />
-    <key name="compwithall" value="0" />
+    <key name="compincback" value="1" />
+    <key name="compwithall" value="1" />
   </section>
   <section name="font">
     <key name="name" value="HackGen Console NF" />
