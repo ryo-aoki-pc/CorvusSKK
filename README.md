@@ -11,7 +11,6 @@
 ## 目次
 
 - [セットアップ](#セットアップ)
-  - [ローカル SKK サーバー（yaskkserv2）の導入](#ローカル-skk-サーバーyaskkserv2の導入)
 - [SKK の基本操作](#skk-の基本操作)
   - [補完候補の削除](#補完候補の削除)
 - [設定内容](#設定内容)
@@ -21,6 +20,10 @@
   - [動作設定](#動作設定)
   - [配色](#配色)
   - [かな拡張入力](#かな拡張入力)
+- [ローカル SKK サーバー（yaskkserv2）](#ローカル-skk-サーバーyaskkserv2)
+  - [導入手順](#導入手順)
+  - [自動起動（常駐）](#自動起動常駐)
+  - [コマンドラインリファレンス](#コマンドラインリファレンス)
 - [設定の変更とリポジトリへの反映](#設定の変更とリポジトリへの反映)
 - [ファイル配置](#ファイル配置)
 - [トラブルシューティング](#トラブルシューティング)
@@ -34,7 +37,7 @@
 |---|---|---|
 | [CorvusSKK](https://github.com/nathancorvussolis/corvusskk/releases) | SKK 風 IME 本体 | ✅ |
 | [HackGen Console NF](https://github.com/yuru7/HackGen/releases) | 候補一覧・入力モード表示のフォント | ✅ |
-| SKK サーバー（[yaskkserv2](https://github.com/wachikun/yaskkserv2) 推奨・[google-ime-skk](https://github.com/hitode909/google-ime-skk) など） | 127.0.0.1:1178 の辞書サーバー。変換を高速化したい場合は完全オフラインの **yaskkserv2** を推奨（[導入手順](#ローカル-skk-サーバーyaskkserv2の導入)） | 任意 |
+| SKK サーバー（[yaskkserv2](https://github.com/wachikun/yaskkserv2) 推奨・[google-ime-skk](https://github.com/hitode909/google-ime-skk) など） | `127.0.0.1:1178` の辞書サーバー。変換を高速化したい場合に併用（[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)） | 任意 |
 
 ### 手順
 
@@ -47,133 +50,9 @@
    ```
 
 4. IME をオフ → オン（Ctrl+Space を 2 回）して設定を反映する
-5. （任意）SKK サーバーを 127.0.0.1:1178 で起動する（→ [ローカル SKK サーバー（yaskkserv2）の導入](#ローカル-skk-サーバーyaskkserv2の導入)）。使わない場合は設定ダイアログの「辞書」タブで SKK 辞書サーバーを無効にする
+5. （任意）SKK サーバーを `127.0.0.1:1178` で起動する（→ [ローカル SKK サーバー（yaskkserv2）](#ローカル-skk-サーバーyaskkserv2)）。使わない場合は設定ダイアログの「辞書」タブで SKK 辞書サーバーを無効にする
 
 > **初回起動時**: URL 指定の辞書が `%TMP%\CorvusSKK` に自動ダウンロードされます。ネットワーク環境によっては時間がかかります。
-
-### ローカル SKK サーバー（yaskkserv2）の導入
-
-変換を高速化したい場合は、完全オフラインで動作する [yaskkserv2](https://github.com/wachikun/yaskkserv2) を `127.0.0.1:1178` で常駐させます。yaskkserv2 は辞書を事前にバイナリ化してローカルで引くため応答がサブミリ秒で、ネットワーク越しの google-ime-skk のような遅延が乗りません。
-
-> **設定との対応**: この `config.xml` は `serv=1` / `host=127.0.0.1` / `port=1178` / `encoding=0`（EUC-JP）/ `timeout=100`（ms）で設定済みです。`timeout=100` は「応答が間に合わなければ候補が欠けてもよいので遅延を最短にする」方針で、サーバー停止・遅延時も待ちは最大 100ms で頭打ちになります。
->
-> コマンドのフラグはバージョンで変わることがあるため、必ず `yaskkserv2 --help` / `yaskkserv2_make_dictionary --help` で確認してください。
-
-1. **入手**
-
-   > **注意**: yaskkserv2 は **crates.io に公開されていません**。そのため `cargo install yaskkserv2` や `cargo binstall yaskkserv2` は `yaskkserv2 is not found` で失敗します。また**リリースのビルド済みバイナリは Linux / macOS 用のみ**で Windows 版はありません。Windows では **Rust ツールチェーンで自前ビルド**するのが基本です。
-
-   事前に [rustup](https://rustup.rs/) で Rust（`cargo`）を導入しておきます（Windows では Visual Studio Build Tools / MSVC が必要です）。
-
-   #### 方法 A: `cargo install --git`（推奨・一行）
-
-   GitHub リポジトリから直接ビルドして導入します。単一パッケージのため、`yaskkserv2` と `yaskkserv2_make_dictionary` の両方が `%USERPROFILE%\.cargo\bin`（既定で PATH 済み）に入ります。
-
-   ```powershell
-   cargo install --git https://github.com/wachikun/yaskkserv2
-   ```
-
-   導入後、`yaskkserv2 --version` で確認できます。
-
-   #### 方法 B: クローンしてビルド（公式手順）
-
-   ```powershell
-   git clone https://github.com/wachikun/yaskkserv2
-   cd yaskkserv2
-   cargo build --release
-   ```
-
-   ビルド済みバイナリは `target\release\yaskkserv2.exe` と `target\release\yaskkserv2_make_dictionary.exe` に生成されます。任意のフォルダ（例: `C:\tools\yaskkserv2\`）へコピーして使います。
-
-   > **Windows でビルドが通らない場合**: yaskkserv2 は主に Linux / macOS 向けに開発されています。MSVC で素直にビルドできないときは、**WSL2** 上で `cargo build --release` してサーバーを起動する方法もあります（WSL2 でリッスンしたポートは Windows 側から `localhost:1178` で到達できます）。
-
-2. **辞書ソースの用意**
-
-   `config.xml` で自動ダウンロード済みの辞書（`%TMP%\CorvusSKK`）か、[skk-dev/dict](https://github.com/skk-dev/dict) から `SKK-JISYO.L` などを取得します（`.gz` は展開しておく）。
-
-3. **サーバー辞書のビルド**
-
-   ```powershell
-   yaskkserv2_make_dictionary --dictionary-filename dictionary.yaskkserv2 `
-     SKK-JISYO.L SKK-JISYO.jinmei SKK-JISYO.fullname SKK-JISYO.geo `
-     SKK-JISYO.station SKK-JISYO.propernoun SKK-JISYO.assoc
-   ```
-
-   既定は EUC-JP です。UTF-8 で運用する場合は `--utf8` を付け、`config.xml` の `encoding` も `1`（UTF-8）に合わせます。
-
-4. **サーバー起動**（`127.0.0.1:1178` で待ち受け）
-
-   ```powershell
-   yaskkserv2 --listen-address 127.0.0.1 --port 1178 dictionary.yaskkserv2
-   ```
-
-   未登録語のみ Google 予測変換にフォールバックさせたい場合は `--google-japanese-input=notfound` 等を併用すると、ローカルの速さと予測変換を両取りできます（変換の往復がネット経由になる語のみ遅延します）。
-
-5. **常駐（自動起動）設定**
-
-   サインインのたびに yaskkserv2 を自動起動するには、**タスクスケジューラ**で登録するのが確実です（コンソールウィンドウを出さずにバックグラウンド常駐できます）。以下では `C:\tools\yaskkserv2\` に `yaskkserv2.exe` と `dictionary.yaskkserv2` を置いた前提で説明します（パスは環境に合わせて読み替えてください）。
-
-   #### 方法 A: `schtasks` コマンドで一括登録（推奨）
-
-   管理者権限の PowerShell で以下を実行します。`/RL HIGHEST`（最上位の特権）と `/IT` の組み合わせで、ログオン時にウィンドウ非表示で起動します。
-
-   ```powershell
-   schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
-     /TR "C:\tools\yaskkserv2\yaskkserv2.exe --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2"
-   ```
-
-   - 登録の確認: `schtasks /Query /TN "yaskkserv2"`
-   - すぐに起動して動作確認: `schtasks /Run /TN "yaskkserv2"`
-   - 解除（削除）: `schtasks /Delete /TN "yaskkserv2" /F`
-
-   > **コンソールが一瞬見える場合**: `yaskkserv2.exe` はコンソールアプリのため、`/TR` で直接起動するとログオン時に一瞬ウィンドウが表示されることがあります。完全に非表示にしたい場合は、後述の起動用ラッパー（VBScript）を `/TR` に指定してください。
-
-   #### 方法 B: タスクスケジューラ GUI で登録
-
-   1. `taskschd.msc` を起動 →「基本タスクの作成」
-   2. 名前: `yaskkserv2`
-   3. トリガー: **「ログオン時」**
-   4. 操作: **「プログラムの開始」**
-      - プログラム/スクリプト: `C:\tools\yaskkserv2\yaskkserv2.exe`
-      - 引数の追加: `--listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2`
-   5. 作成後、タスクのプロパティを開き
-      - 「全般」タブ → **「最上位の特権で実行する」**にチェック
-      - 同タブ → **「ユーザーがログオンしているかどうかにかかわらず実行する」**は外したまま（ログオン中のみ常駐させる場合）
-      - 「設定」タブ → **「タスクを停止するまでの時間」のチェックを外す**（常駐し続けるため）
-      - 「条件」タブ → 「コンピューターを AC 電源で使用している場合のみ…」のチェックを外す（ノート PC でも常駐させる場合）
-
-   #### コンソールを完全に隠す（任意）
-
-   ウィンドウを一切出さずに常駐させたい場合は、VBScript のラッパー経由で起動します。`C:\tools\yaskkserv2\start-hidden.vbs` を作成:
-
-   ```vbscript
-   ' start-hidden.vbs — yaskkserv2 をウィンドウ非表示で起動
-   CreateObject("WScript.Shell").Run _
-     """C:\tools\yaskkserv2\yaskkserv2.exe"" --listen-address 127.0.0.1 --port 1178 ""C:\tools\yaskkserv2\dictionary.yaskkserv2""", 0, False
-   ```
-
-   タスクの `/TR`（または GUI のプログラム）を次のように差し替えます:
-
-   ```powershell
-   schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
-     /TR "wscript.exe C:\tools\yaskkserv2\start-hidden.vbs"
-   ```
-
-   #### 方法 C: スタートアップフォルダ（手軽だが非推奨）
-
-   `Win+R` → `shell:startup` で開くフォルダに上記 `start-hidden.vbs` へのショートカットを置くだけでもログオン時に起動できます。ただし特権昇格やウィンドウ制御が効きにくいため、基本は方法 A / B を推奨します。
-
-   > **更新・再起動**: 辞書を作り直したときや設定を変えたときは、`schtasks /End /TN "yaskkserv2"`（または タスクマネージャーで `yaskkserv2.exe` を終了）してから `schtasks /Run /TN "yaskkserv2"` で再起動します。
-
-6. **動作確認**
-
-   ```powershell
-   Test-NetConnection 127.0.0.1 -Port 1178
-   ```
-
-   接続できたら CorvusSKK で `▽` 変換し、候補が即座に表示されることを確認します。サーバーを停止すると `timeout=100` 後にローカル辞書のみで変換されます（候補が一部欠けることがありますが遅延は最小です）。
-
-> **エンコーディング整合の注意**: サーバーの配信エンコーディングと `config.xml` の `encoding` を必ず一致させてください（不一致だと候補が文字化け／表示されません）。
 
 ## SKK の基本操作
 
@@ -233,7 +112,7 @@ URL 指定（自動ダウンロード）の SKK 辞書と、ローカルの SKK 
 | SKK-JISYO.emoji | 絵文字（例: ▽えがお → 😊） |
 | SKK-JISYO.itaiji | 異体字・旧字体（例: 萬・邊） |
 | SKK-JISYO.lisp | 日付・時刻・年号・単位変換（プログラム実行変換） |
-| SKK サーバー | 127.0.0.1:1178（yaskkserv2 など。[導入手順](#ローカル-skk-サーバーyaskkserv2の導入)） |
+| SKK サーバー | `127.0.0.1:1178`（yaskkserv2 など。[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)） |
 
 ### 日付・時刻入力
 
@@ -333,6 +212,209 @@ A S D F J K L G H
 | `z@` | ◎ | `z(` `z)` | （ ） |
 | `z1`〜`z9` | ①〜⑨ | `z;` `z:` | ゛ ゜ |
 
+## ローカル SKK サーバー（yaskkserv2）
+
+> このセクションは **任意**です。SKK サーバーを使わない場合は読み飛ばして構いません。
+
+変換を高速化したい場合は、完全オフラインで動作する [yaskkserv2](https://github.com/wachikun/yaskkserv2) を `127.0.0.1:1178` で常駐させます。yaskkserv2 は辞書を事前にバイナリ化してローカルで引くため応答がサブミリ秒で、ネットワーク越しの google-ime-skk のような遅延が乗りません。
+
+> **この `config.xml` の設定**: `serv=1` / `host=127.0.0.1` / `port=1178` / `encoding=0`（EUC-JP）/ `timeout=100`（ms）で設定済みです。`timeout=100` は「応答が間に合わなければ候補が欠けてもよいので遅延を最短にする」方針で、サーバー停止・遅延時も待ちは最大 100ms で頭打ちになります。
+
+### 導入手順
+
+#### 1. 入手
+
+> **注意**: yaskkserv2 は **crates.io に公開されていません**。そのため `cargo install yaskkserv2` や `cargo binstall yaskkserv2` は `yaskkserv2 is not found` で失敗します。また**リリースのビルド済みバイナリは Linux / macOS 用のみ**で Windows 版はありません。Windows では **Rust ツールチェーンで自前ビルド**するのが基本です。
+
+事前に [rustup](https://rustup.rs/) で Rust（`cargo`）を導入しておきます（Windows では Visual Studio Build Tools / MSVC が必要です）。
+
+**方法 A: `cargo install --git`（推奨・一行）**
+
+GitHub リポジトリから直接ビルドして導入します。単一パッケージのため、`yaskkserv2` と `yaskkserv2_make_dictionary` の両方が `%USERPROFILE%\.cargo\bin`（既定で PATH 済み）に入ります。
+
+```powershell
+cargo install --git https://github.com/wachikun/yaskkserv2
+```
+
+導入後、`yaskkserv2 --version` で確認できます。
+
+**方法 B: クローンしてビルド（公式手順）**
+
+```powershell
+git clone https://github.com/wachikun/yaskkserv2
+cd yaskkserv2
+cargo build --release
+```
+
+ビルド済みバイナリは `target\release\yaskkserv2.exe` と `target\release\yaskkserv2_make_dictionary.exe` に生成されます。任意のフォルダ（例: `C:\tools\yaskkserv2\`）へコピーして使います。
+
+> **Windows でビルドが通らない場合**: yaskkserv2 は主に Linux / macOS 向けに開発されています。MSVC で素直にビルドできないときは、**WSL2** 上で `cargo build --release` してサーバーを起動する方法もあります（WSL2 でリッスンしたポートは Windows 側から `localhost:1178` で到達できます）。
+
+#### 2. 辞書の用意とビルド
+
+辞書ソースは、`config.xml` で自動ダウンロード済みの辞書（`%TMP%\CorvusSKK`）か、[skk-dev/dict](https://github.com/skk-dev/dict) から `SKK-JISYO.L` などを取得します（`.gz` は展開しておく）。
+
+`dictionary.yaskkserv2` の置き場所は任意で、**起動時に `yaskkserv2` へ渡すパスと一致していれば**どこでも動きます。`--dictionary-filename` に**絶対パス**を指定して、固定フォルダへ直接出力するのが確実です。入手方法によって自然な置き場所が変わります。
+
+**方法 A（`cargo install --git`）の場合** — バイナリは PATH 済みなので、辞書はユーザー専用フォルダ `%LOCALAPPDATA%\yaskkserv2\` に置きます（`.cargo\bin` はバイナリ置き場なので辞書は入れない）。
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$env:LOCALAPPDATA\yaskkserv2" | Out-Null
+
+yaskkserv2_make_dictionary --dictionary-filename "$env:LOCALAPPDATA\yaskkserv2\dictionary.yaskkserv2" `
+  SKK-JISYO.L SKK-JISYO.jinmei SKK-JISYO.fullname SKK-JISYO.geo `
+  SKK-JISYO.station SKK-JISYO.propernoun SKK-JISYO.assoc
+```
+
+**方法 B（クローンしてビルド）の場合** — `yaskkserv2.exe` を置いたフォルダ（例 `C:\tools\yaskkserv2\`）に辞書も一緒に置きます。
+
+```powershell
+New-Item -ItemType Directory -Force -Path C:\tools\yaskkserv2 | Out-Null
+
+yaskkserv2_make_dictionary --dictionary-filename C:\tools\yaskkserv2\dictionary.yaskkserv2 `
+  SKK-JISYO.L SKK-JISYO.jinmei SKK-JISYO.fullname SKK-JISYO.geo `
+  SKK-JISYO.station SKK-JISYO.propernoun SKK-JISYO.assoc
+```
+
+辞書は既定で EUC-JP です（UTF-8 で運用する場合は[コマンドラインリファレンス](#コマンドラインリファレンス)のエンコーディングの注記を参照）。
+
+> **避けるべき置き場所**: `%TMP%` / `Downloads` などの一時的な場所、クローンした `target\release\` 内（再ビルドや `cargo clean` で消える）。
+>
+> 以降の手順は方法 B の `C:\tools\yaskkserv2\dictionary.yaskkserv2` を例に記載します。方法 A の場合は `%LOCALAPPDATA%\yaskkserv2\dictionary.yaskkserv2` に読み替えてください（自動起動の `schtasks` では `%LOCALAPPDATA%` を展開した実パス、例 `C:\Users\<ユーザー名>\AppData\Local\yaskkserv2\dictionary.yaskkserv2` を使う）。
+
+#### 3. サーバーの起動
+
+`127.0.0.1:1178` で待ち受けます。
+
+```powershell
+yaskkserv2 --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2
+```
+
+未登録語のみ Google 予測変換にフォールバックさせたい場合は `--google-japanese-input=notfound` 等を併用すると、ローカルの速さと予測変換を両取りできます（オプション詳細は[コマンドラインリファレンス](#コマンドラインリファレンス)）。
+
+#### 4. 動作確認
+
+```powershell
+Test-NetConnection 127.0.0.1 -Port 1178
+```
+
+接続できたら CorvusSKK で `▽` 変換し、候補が即座に表示されることを確認します。サーバーを停止すると `timeout=100` 後にローカル辞書のみで変換されます（候補が一部欠けることがありますが遅延は最小です）。
+
+### 自動起動（常駐）
+
+サインインのたびに yaskkserv2 を自動起動するには、**タスクスケジューラ**で登録するのが確実です（コンソールウィンドウを出さずにバックグラウンド常駐できます）。以下では `C:\tools\yaskkserv2\` に `yaskkserv2.exe` と `dictionary.yaskkserv2` を置いた前提で説明します（パスは環境に合わせて読み替えてください）。
+
+#### 方法 A: `schtasks` コマンドで一括登録（推奨）
+
+管理者権限の PowerShell で以下を実行します。`/RL HIGHEST`（最上位の特権）でログオン時に起動します。
+
+```powershell
+schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
+  /TR "C:\tools\yaskkserv2\yaskkserv2.exe --listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2"
+```
+
+- 登録の確認: `schtasks /Query /TN "yaskkserv2"`
+- すぐに起動して動作確認: `schtasks /Run /TN "yaskkserv2"`
+- 解除（削除）: `schtasks /Delete /TN "yaskkserv2" /F`
+
+> **コンソールが一瞬見える場合**: `yaskkserv2.exe` はコンソールアプリのため、`/TR` で直接起動するとログオン時に一瞬ウィンドウが表示されることがあります。完全に非表示にしたいときは、後述の VBScript ラッパーを `/TR` に指定してください。
+
+#### 方法 B: タスクスケジューラ GUI で登録
+
+1. `taskschd.msc` を起動 →「基本タスクの作成」
+2. 名前: `yaskkserv2`
+3. トリガー: **「ログオン時」**
+4. 操作: **「プログラムの開始」**
+   - プログラム/スクリプト: `C:\tools\yaskkserv2\yaskkserv2.exe`
+   - 引数の追加: `--listen-address 127.0.0.1 --port 1178 C:\tools\yaskkserv2\dictionary.yaskkserv2`
+5. 作成後、タスクのプロパティを開き
+   - 「全般」タブ → **「最上位の特権で実行する」**にチェック
+   - 「設定」タブ → **「タスクを停止するまでの時間」のチェックを外す**（常駐し続けるため）
+   - 「条件」タブ → 「コンピューターを AC 電源で使用している場合のみ…」のチェックを外す（ノート PC でも常駐させる場合）
+
+#### コンソールを完全に隠す（任意）
+
+ウィンドウを一切出さずに常駐させたい場合は、VBScript のラッパー経由で起動します。`C:\tools\yaskkserv2\start-hidden.vbs` を作成:
+
+```vbscript
+' start-hidden.vbs — yaskkserv2 をウィンドウ非表示で起動
+CreateObject("WScript.Shell").Run _
+  """C:\tools\yaskkserv2\yaskkserv2.exe"" --listen-address 127.0.0.1 --port 1178 ""C:\tools\yaskkserv2\dictionary.yaskkserv2""", 0, False
+```
+
+タスクの `/TR`（または GUI のプログラム）を次のように差し替えます:
+
+```powershell
+schtasks /Create /TN "yaskkserv2" /SC ONLOGON /RL HIGHEST /F `
+  /TR "wscript.exe C:\tools\yaskkserv2\start-hidden.vbs"
+```
+
+#### 方法 C: スタートアップフォルダ（手軽だが非推奨）
+
+`Win+R` → `shell:startup` で開くフォルダに上記 `start-hidden.vbs` のショートカットを置くだけでもログオン時に起動できます。ただし特権昇格やウィンドウ制御が効きにくいため、基本は方法 A / B を推奨します。
+
+> **更新・再起動**: 辞書を作り直したときや設定を変えたときは、`schtasks /End /TN "yaskkserv2"`（または タスクマネージャーで `yaskkserv2.exe` を終了）してから `schtasks /Run /TN "yaskkserv2"` で再起動します。
+
+### コマンドラインリファレンス
+
+> オプションはバージョンで増減することがあります。最終的には実環境の `yaskkserv2 --help` /
+> `yaskkserv2_make_dictionary --help` を正としてください。以下は `master` 系の値です。
+
+#### サーバー本体 `yaskkserv2`
+
+```
+yaskkserv2 [オプション] <dictionary>
+```
+
+`<dictionary>` は `yaskkserv2_make_dictionary` で作った辞書ファイル（必須・位置引数）です。
+設定はコマンドライン引数のほか、`--config-filename` で指定する設定ファイルでも与えられます。
+
+| オプション | 既定値 | 説明 |
+|---|---|---|
+| `<dictionary>` | （必須） | 変換に使う辞書ファイルのパス |
+| `--config-filename=<FILE>` | ビルド既定パス | 設定ファイルを指定（[etc/yaskkserv2.conf](https://github.com/wachikun/yaskkserv2/blob/master/etc/yaskkserv2.conf) が雛形） |
+| `--port=<PORT>` | `1178` | 待ち受けポート。CorvusSKK の `config.xml` の `port` と一致させる |
+| `--listen-address=<ADDR>` | `0.0.0.0` | 待ち受けアドレス。**ローカル専用なら `127.0.0.1` を推奨**（外部公開を避ける） |
+| `--max-connections=<N>` | `16` | 同時接続数の上限 |
+| `--max-server-completions=<N>` | `64` | サーバーが返す補完候補の最大数（動的補完で利用） |
+| `--midashi-utf8` | （無効=EUC） | 見出し語（検索キー）を UTF-8 として受け取る。辞書を `--utf8` で作った場合に合わせる |
+| `--no-daemonize` | — | デーモン化しない（フォアグラウンド実行）。Unix 向けの概念で、Windows では実質フォアグラウンド動作 |
+| `--google-japanese-input=<TIMING>` | `notfound` | Google 日本語入力フォールバックのタイミング：`notfound`（辞書に無いときのみ）/ `disable`（使わない）/ `last`（辞書の後に必ず）/ `first`（辞書より先に） |
+| `--google-suggest` | （`etc` 雛形では有効） | Google サジェスト API を併用 |
+| `--google-use-http` | （無効=HTTPS） | Google へのアクセスを HTTP にする（既定は HTTPS） |
+| `--google-timeout-milliseconds=<MS>` | `1000` | Google アクセスのタイムアウト（ms） |
+| `--google-cache-filename=<FILE>` | （無効） | Google 変換結果のキャッシュファイル。指定すると再利用で高速化 |
+| `--google-cache-entries=<N>` | `1024` | キャッシュ件数の上限 |
+| `--google-cache-expire-seconds=<SEC>` | `2592000`（30日） | キャッシュの有効期間（秒） |
+| `--google-max-candidates-length=<N>` | `25` | マージする候補の最大長 |
+| `--hostname-and-ip-address-for-protocol-3=<HOST:ADDR>` | `localhost:127.0.0.1` | skkserv プロトコル 3（サーバーバージョン/ホスト応答）で返すホスト名と IP |
+
+Google フォールバックも併用する起動例（未登録語だけネット変換・結果はキャッシュ）:
+
+```powershell
+yaskkserv2 --listen-address 127.0.0.1 --port 1178 `
+  --google-japanese-input notfound `
+  --google-cache-filename C:\tools\yaskkserv2\google-cache.json `
+  C:\tools\yaskkserv2\dictionary.yaskkserv2
+```
+
+#### 辞書ビルド `yaskkserv2_make_dictionary`
+
+```
+yaskkserv2_make_dictionary --dictionary-filename <OUT> [--utf8] <SKK-JISYO...>
+```
+
+| オプション | 既定値 | 説明 |
+|---|---|---|
+| `<SKK-JISYO...>` | （複数可） | 入力する SKK 辞書（EUC または UTF-8）。位置引数で並べる |
+| `--dictionary-filename=<FILE>` | （必須） | 出力するサーバー辞書のパス（`--cache-filename` と排他） |
+| `--cache-filename=<FILE>` | （無効） | Google キャッシュファイルから辞書を作る（`--dictionary-filename` と排他） |
+| `--output-jisyo-filename=<FILE>` | （無効） | サーバー辞書から SKK 辞書（テキスト）へ逆変換して出力 |
+| `--utf8` | （無効=EUC） | UTF-8 形式の辞書を作る |
+| `--verbose` | （無効） | 詳細ログを出力 |
+
+> **エンコーディングは 3 点セットで揃える**: 「辞書ビルド `--utf8`」「サーバー `--midashi-utf8`」「CorvusSKK `encoding`（0=EUC-JP / 1=UTF-8）」は必ず一致させます。いずれか 1 つだけ変えると候補が文字化け／表示されません。この設定の既定はすべて **EUC-JP 側**（`--utf8` なし・`encoding=0`）です。
+
 ## 設定の変更とリポジトリへの反映
 
 設定の変更方法は 2 つあります。
@@ -364,7 +446,8 @@ git commit -m "変更内容の説明"
 |---|---|
 | 設定が反映されない | IME をオフ → オン。それでも反映されない場合はサインアウト → サインイン |
 | 候補がほとんど出ない | 辞書のダウンロード失敗の可能性。ネットワークを確認し、`%TMP%\CorvusSKK` を削除して IME をオフ → オン |
-| 変換が遅い・引っかかる | SKK サーバー（127.0.0.1:1178）が起動していない場合は、[ローカル SKK サーバー（yaskkserv2）の導入](#ローカル-skk-サーバーyaskkserv2の導入)でサーバーを常駐させるか、設定ダイアログ「辞書」タブでサーバーを無効化。`config.xml` は `timeout=100`（ms）で応答待ちを短く設定済み |
+| 変換が遅い・引っかかる | SKK サーバー（`127.0.0.1:1178`）が起動していない場合は、[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)で常駐させるか、設定ダイアログ「辞書」タブでサーバーを無効化。`config.xml` は `timeout=100`（ms）で応答待ちを短く設定済み |
+| サーバーの候補が文字化けする / 出ない | エンコーディング不一致。[コマンドラインリファレンス](#コマンドラインリファレンス)の「3 点セットで揃える」を確認 |
 | 絵文字が変換できない | Direct2D ＋ カラーフォントの表示設定が必要（この設定では有効済み） |
 | 候補一覧のフォントがおかしい | HackGen Console NF がインストールされているか確認 |
 | ASCII モードから戻れない | Ctrl+Space を 2 回押して IME を入れ直す（この設定では jmode キーを割り当てていないため） |
@@ -375,5 +458,6 @@ git commit -m "変更内容の説明"
 - [CorvusSKK](https://github.com/nathancorvussolis/corvusskk) — 本体・公式ドキュメント
 - [CorvusSKK Releases](https://github.com/nathancorvussolis/corvusskk/releases) — インストーラー
 - [skk-dev/dict](https://github.com/skk-dev/dict) — SKK 辞書（この設定の辞書取得元）
+- [yaskkserv2](https://github.com/wachikun/yaskkserv2) — ローカル SKK サーバー
 - [HackGen](https://github.com/yuru7/HackGen) — 候補一覧用フォント
 - [ddskk](https://github.com/skk-dev/ddskk) — Emacs 版 SKK（SKK 操作体系の本家）
