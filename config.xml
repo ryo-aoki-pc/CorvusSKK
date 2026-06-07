@@ -24,7 +24,7 @@
     <key name="host" value="127.0.0.1" />
     <key name="port" value="1178" />
     <key name="encoding" value="0" />
-    <key name="timeout" value="100" />
+    <key name="timeout" value="1500" />
   </section>
   <section name="userdict">
     <key name="backupdir" value="%APPDATA%\CorvusSKK" />
