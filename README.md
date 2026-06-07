@@ -20,6 +20,7 @@
   - [動作設定](#動作設定)
   - [配色](#配色)
   - [かな拡張入力](#かな拡張入力)
+- [設定リファレンス（config.xml）](#設定リファレンスconfigxml)
 - [ローカル SKK サーバー（yaskkserv2）](#ローカル-skk-サーバーyaskkserv2)
   - [導入手順](#導入手順)
   - [自動起動（常駐）](#自動起動常駐)
@@ -211,6 +212,99 @@ A S D F J K L G H
 | `z0` | ○ | `z{` `z}` | 【 】 |
 | `z@` | ◎ | `z(` `z)` | （ ） |
 | `z1`〜`z9` | ①〜⑨ | `z;` `z:` | ゛ ゜ |
+
+## 設定リファレンス（config.xml）
+
+`config.xml` の各セクション・キーの意味と、このリポジトリでの設定値です。説明文は CorvusSKK 設定ダイアログのラベルに対応します（チェック系は `1`=有効 / `0`=無効）。
+
+### server — SKK 辞書サーバー
+
+| キー | 値 | 意味 |
+|---|---|---|
+| serv | 1 | SKK サーバーを使用する |
+| host | 127.0.0.1 | サーバーのホスト |
+| port | 1178 | サーバーのポート |
+| encoding | 0 | サーバーとの文字コード（0=EUC-JP / 1=UTF-8） |
+| timeout | 1500 | 応答待ちの上限（ms）。詳細は[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2) |
+
+### userdict — ユーザー辞書
+
+| キー | 値 | 意味 |
+|---|---|---|
+| backupdir | `%APPDATA%\CorvusSKK` | ユーザー辞書のバックアップ先 |
+| backupgen | 7 | バックアップの世代数 |
+| privateonvkey / privateonmkey | 0x79 / 6 | プライベートモード ON キー（0x79=F10・6=Ctrl+Shift → **Ctrl+Shift+F10**） |
+| privateoffvkey / privateoffmkey | 0x79 / 6 | プライベートモード OFF キー（同上・トグル） |
+| privatemodeauto | 1 | アプリ切替時にプライベートモードを自動解除する |
+
+> `mkey` は修飾キーのビットマスク（**Ctrl=2 / Shift=4**、合算で Ctrl+Shift=6）。`vkey` は仮想キーコード（F10=0x79）。
+
+### behavior — 動作
+
+| キー | 値 | 意味（設定ダイアログのラベル） |
+|---|---|---|
+| defaultmode | 0 | 初期入力モード（0=ひらがな） |
+| defmodeascii | 0 | 直接入力モードを ASCII にする（0=無効） |
+| begincvokuri | 1 | 送り仮名が決定したとき変換を開始する |
+| precedeokuri | 1 | 送り仮名が一致した候補を優先する |
+| shiftnnokuri | 0 | 送り仮名で撥音（ん）を送り出す |
+| srchallokuri | 1 | 送りあり変換で送りなし候補も検索する |
+| delcvposcncl | 0 | 取消のとき変換位置を削除する |
+| delokuricncl | 1 | 取消のとき送り仮名を削除する |
+| backincenter | 1 | 後退（Backspace）に確定を含める |
+| addcandktkn | 1 | 候補に片仮名変換を追加する |
+| entogglekana | 0 | かな／カナ入力モードをトグルする |
+| setbydirect | 0 | キー設定「直接入力」を確定入力で使用する |
+| compmultinum | 5 | 複数補完の候補数 |
+| stacompmulti | 1 | 複数補完を使用する（Tab 補完で複数列挙） |
+| dynamiccomp | 1 | 動的補完を使用する（▽入力中に自動表示） |
+| dyncompmulti | 1 | 複数動的補完を使用する |
+| compuserdic | 1 | 補完された見出し語の候補を表示する |
+| compincback | 0 | 前方一致と後方一致で補完する（0=前方一致のみ） |
+| compwithall | 0 | 全ての辞書ファイルで補完する（0=ユーザー辞書中心） |
+
+### font — フォント
+
+| キー | 値 | 意味 |
+|---|---|---|
+| name | HackGen Console NF | 候補一覧・入力モード表示のフォント |
+| size | 12 | フォントサイズ |
+| weight | 400 | 太さ（400=標準 / 700=太字） |
+| italic | 0 | 斜体（0=無効） |
+
+### display — 表示
+
+色のキー（`colorbg` ほか）は[配色](#配色)を参照。その他の表示キーは次の通りです。
+
+| キー | 値 | 意味 |
+|---|---|---|
+| maxwidth | 320 | 候補一覧の最大幅（px） |
+| drawapi | 1 | 描画 API（1=Direct2D） |
+| colorfont | 1 | 彩色（カラーフォント・絵文字を色付き表示） |
+| untilcandlist | 2 | 候補一覧表示に要する変換回数（0=表示なし。2=2 回目から一覧） |
+| pagecandnum | 7 | 候補一覧のページ当たり候補数 |
+| dispcandno | 0 | 候補一覧が表示なしのとき候補数を表示する |
+| verticalcand | 1 | 候補一覧を縦に表示する |
+| annotation | 1 | 注釈を表示する |
+| annotatlst | 1 | 注釈を候補一覧にも表示する |
+| showmodemark | 1 | ▽▼* マークを表示する |
+| showroman | 1 | 入力中のローマ字を表示する |
+| showromanjlat | 0 | 全英モードでローマ字を表示する（0=無効） |
+| showmodeinl | 1 | 入力モードをインライン表示する |
+| showmodeinltm | 3000 | インライン入力モード表示の時間（ms） |
+
+### その他のセクション
+
+| セクション | 内容 |
+|---|---|
+| dictionary | 使用する SKK 辞書の一覧（[辞書](#辞書)を参照） |
+| displayattr | 変換中文字列の表示属性（下線・色）をアプリ種別ごとに指定。値は内部形式のため通常は変更しない |
+| selkey | 候補一覧の選択キー（1〜9 に割当 → 実質 A S D F J K L G H） |
+| preservedkeyon / preservedkeyoff | IME オン／オフのシステム予約キー（`vkey=0x20`(Space)・`mkey=2`(Ctrl) → **Ctrl+Space**） |
+| keymap / vkeymap | 機能ごとのキー割り当て。`keymap`=文字ベース、`vkeymap`=仮想キーベース。空欄は CorvusSKK 既定を使用（実際の割り当ては[キーバインド](#キーバインド)） |
+| convpoint | 変換開始位置（送り・接辞）に使う文字の対応表 |
+| kana | ローマ字 → かな（ひらがな／カタカナ／半角カナ）変換テーブル（[かな拡張入力](#かな拡張入力)の `z` 系を含む） |
+| jlatin | 半角 → 全角英数（全英モード）の対応表 |
 
 ## ローカル SKK サーバー（yaskkserv2）
 
