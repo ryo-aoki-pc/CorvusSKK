@@ -3,7 +3,7 @@
 [CorvusSKK](https://github.com/nathancorvussolis/corvusskk)（Windows 用 SKK 風日本語入力メソッド）の個人設定リポジトリです。
 
 - 🎨 **ダークテーマ** — One Dark 系の候補一覧・入力モード表示
-- 📚 **15 の SKK 辞書** — 絵文字・異体字・人名・地名・駅名・郵便番号など（URL 指定で自動取得）＋ ローカル SKK サーバー（yaskkserv2）
+- 📚 **15 の SKK 辞書** — 絵文字・異体字・人名・地名・駅名・郵便番号など（URL 指定で自動取得）＋ ローカル SKK サーバー（crvskkserv／yaskkserv2）
 - 📅 **日付・時刻入力** — ▽きょう → 令和8年6月2日(火)
 - ⚡ **強力な補完** — Tab で全辞書から見出しを補完（前方／後方一致・最大 7 件）
 - ⌨️ **ホームポジション重視** — 候補選択は A S D F J K L G H
@@ -21,6 +21,7 @@
   - [配色](#配色)
   - [かな拡張入力](#かな拡張入力)
 - [設定リファレンス（config.xml）](#設定リファレンスconfigxml)
+- [ローカル SKK サーバー（crvskkserv）](#ローカル-skk-サーバーcrvskkserv)
 - [ローカル SKK サーバー（yaskkserv2）](#ローカル-skk-サーバーyaskkserv2)
   - [導入手順](#導入手順)
   - [自動起動（常駐）](#自動起動常駐)
@@ -38,7 +39,7 @@
 |---|---|---|
 | [CorvusSKK](https://github.com/nathancorvussolis/corvusskk/releases) | SKK 風 IME 本体 | ✅ |
 | [HackGen Console NF](https://github.com/yuru7/HackGen/releases) | 候補一覧・入力モード表示のフォント | ✅ |
-| SKK サーバー（[yaskkserv2](https://github.com/wachikun/yaskkserv2) 推奨・[google-ime-skk](https://github.com/hitode909/google-ime-skk) など） | `127.0.0.1:1178` の辞書サーバー。変換を高速化したい場合に併用（[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)） | 任意 |
+| SKK サーバー（[crvskkserv](https://github.com/nathancorvussolis/crvskkserv) 推奨・[yaskkserv2](https://github.com/wachikun/yaskkserv2) など） | `127.0.0.1:1178` の辞書サーバー。変換の高速化・語彙補強に併用（[ローカル SKK サーバー](#ローカル-skk-サーバーcrvskkserv)） | 任意 |
 
 ### 手順
 
@@ -51,7 +52,7 @@
    ```
 
 4. IME をオフ → オン（Ctrl+Space を 2 回）して設定を反映する
-5. （任意）SKK サーバーを `127.0.0.1:1178` で起動する（→ [ローカル SKK サーバー（yaskkserv2）](#ローカル-skk-サーバーyaskkserv2)）。使わない場合は設定ダイアログの「辞書」タブで SKK 辞書サーバーを無効にする
+5. （任意）SKK サーバーを `127.0.0.1:1178` で起動する（→ [ローカル SKK サーバー（crvskkserv）](#ローカル-skk-サーバーcrvskkserv)）。使わない場合は設定ダイアログの「辞書」タブで SKK 辞書サーバーを無効にする
 
 > **初回起動時**: URL 指定の辞書が `%TMP%\CorvusSKK` に自動ダウンロードされます。ネットワーク環境によっては時間がかかります。
 
@@ -113,7 +114,7 @@ URL 指定（自動ダウンロード）の SKK 辞書と、ローカルの SKK 
 | SKK-JISYO.emoji | 絵文字（例: ▽えがお → 😊） |
 | SKK-JISYO.itaiji | 異体字・旧字体（例: 萬・邊） |
 | SKK-JISYO.lisp | 日付・時刻・年号・単位変換（プログラム実行変換） |
-| SKK サーバー | `127.0.0.1:1178`（yaskkserv2 など。[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)） |
+| SKK サーバー | `127.0.0.1:1178`（crvskkserv／yaskkserv2 など。[ローカル SKK サーバー](#ローカル-skk-サーバーcrvskkserv)） |
 
 ### 日付・時刻入力
 
@@ -306,11 +307,48 @@ A S D F J K L G H
 | kana | ローマ字 → かな（ひらがな／カタカナ／半角カナ）変換テーブル（[かな拡張入力](#かな拡張入力)の `z` 系を含む） |
 | jlatin | 半角 → 全角英数（全英モード）の対応表 |
 
+## ローカル SKK サーバー（crvskkserv）
+
+> このセクションは **任意**です。SKK サーバーを使わない場合は読み飛ばして構いません。
+
+変換の高速化と語彙補強のため、ローカルに SKK サーバーを常駐させ、CorvusSKK から `127.0.0.1:1178` で参照します。本リポジトリでは **[crvskkserv](https://github.com/nathancorvussolis/crvskkserv) を推奨**します。CorvusSKK と同じ作者による **Windows ネイティブ**の SKK サーバーで、Rust ビルドや WSL2 が不要、タスクトレイ常駐＋GUI 設定で、1 つのサーバーに **ローカル SKK 辞書ファイル＋SKK 辞書サーバ＋Google CGI API for Japanese Input** をまとめて設定できます（最大 64 辞書）。
+
+> **Google 候補が「2回に1回」しか出ない問題について**: yaskkserv2 ＋ Google フォールバック構成では、Google 候補が初回だけ出ず再変換で出る（2回に1回）症状が起きがちです。原因は、yaskkserv2 が Google 問い合わせのたびに **HTTPS 接続を新規に張り直す**（TLS ハンドシェイク込みでコールドが重い）ため CorvusSKK のタイムアウトを超過し、初回は空・裏で完了してキャッシュ → 再変換で命中、となるためです。**crvskkserv は Google CGI API を HTTP（TLS なし）で取得**するためコールド遅延が小さく、タイムアウト内に収まりやすいので、この症状を大きく緩和できます。
+
+> **`config.xml` 側は変更不要**: `serv=1` / `host=127.0.0.1` / `port=1178` / `encoding=0`（EUC-JP）/ `timeout=1500` のまま、crvskkserv を同じ `127.0.0.1:1178`・EUC-JP で待ち受けるよう設定すれば差し替えられます。
+
+### 1. 入手
+
+[リリース](https://github.com/nathancorvussolis/crvskkserv/releases) から実行ファイルを取得し、任意のフォルダ（例 `C:\tools\crvskkserv\`）に置きます。ビルドは不要です。
+
+### 2. 実行・常駐
+
+`crvskkserv.exe` を実行するとタスクトレイに常駐します。サインイン時に自動起動するには、スタートアップ（`Win+R` → `shell:startup`）に `crvskkserv.exe` のショートカットを置きます。
+
+### 3. 設定（タスクトレイ → 設定ダイアログ）
+
+タスクトレイのアイコンから設定ダイアログを開き、次を設定します。
+
+- **待ち受け**: ポート `1178`、文字コード **EUC-JP**（CorvusSKK の `port` / `encoding=0` と一致させる）
+- **辞書（上から順に検索）**:
+  1. ローカル SKK 辞書ファイル（`SKK-JISYO.L` など。`%TMP%\CorvusSKK` のダウンロード済み辞書や [skk-dev/dict](https://github.com/skk-dev/dict) から取得）
+  2. **Google CGI API for Japanese Input**（最下位に置き、ローカルで見つからない語のフォールバックに）
+
+> ローカル辞書を上位、Google CGI API を最下位に並べると、ローカルヒット語は即時・未登録語のみ Google という挙動になります。
+
+### 4. 動作確認
+
+CorvusSKK を IME オフ→オンしてから `▽` 変換します。ローカル辞書の語が即時に出ること、辞書に無い語でも **初回から** Google 変換候補が出る（再変換不要＝「2回に1回」が起きない）ことを確認します。
+
+> **キャッシュについて**: crvskkserv は yaskkserv2 のようなサーバー側 Google キャッシュ（`google-cache.json`）を持ちませんが、HTTP で高速なうえ、確定した語は CorvusSKK のユーザー辞書が学習するため、実用上の再問い合わせは多くありません。
+
 ## ローカル SKK サーバー（yaskkserv2）
 
 > このセクションは **任意**です。SKK サーバーを使わない場合は読み飛ばして構いません。
 
-変換を高速化したい場合は、[yaskkserv2](https://github.com/wachikun/yaskkserv2) を `127.0.0.1:1178` で常駐させます。yaskkserv2 は辞書を事前にバイナリ化してローカルで引くため応答がサブミリ秒です。本リポジトリでは、**ローカル辞書で見つからない語のみ Google 日本語入力にフォールバックし、その結果をキャッシュする**構成を前提に設定しています。
+> **これは代替です。** まず上の [crvskkserv](#ローカル-skk-サーバーcrvskkserv) を検討してください。yaskkserv2 は完全オフラインの高速辞書引きが要る場合や、すでに Rust 環境がある場合の選択肢です。Google フォールバックを使うなら、上記「2回に1回」を緩和するため起動オプションに **`--google-use-http`** を加えて TLS ハンドシェイクを省くことを推奨します（変換内容が平文で流れる点には留意）。
+
+[yaskkserv2](https://github.com/wachikun/yaskkserv2) は辞書を事前にバイナリ化してローカルで引くため応答がサブミリ秒で、完全オフライン運用に向きます。`127.0.0.1:1178` で常駐させ、**ローカル辞書で見つからない語のみ Google 日本語入力にフォールバックし、その結果をキャッシュする**構成にできます（ただし Google 利用時は前述の「2回に1回」に注意し、`--google-use-http` を併用）。
 
 > **この `config.xml` の設定**: `serv=1` / `host=127.0.0.1` / `port=1178` / `encoding=0`（EUC-JP）/ `timeout=1500`（ms）で設定済みです。
 >
@@ -550,7 +588,8 @@ git commit -m "変更内容の説明"
 |---|---|
 | 設定が反映されない | IME をオフ → オン。それでも反映されない場合はサインアウト → サインイン |
 | 候補がほとんど出ない | 辞書のダウンロード失敗の可能性。ネットワークを確認し、`%TMP%\CorvusSKK` を削除して IME をオフ → オン |
-| 変換が遅い・引っかかる | SKK サーバー（`127.0.0.1:1178`）が起動していない場合は、[ローカル SKK サーバー](#ローカル-skk-サーバーyaskkserv2)で常駐させるか、設定ダイアログ「辞書」タブでサーバーを無効化。サーバー停止中は毎変換で `timeout=1500`（ms）待つため、使わないなら無効化を推奨 |
+| 変換が遅い・引っかかる | SKK サーバー（`127.0.0.1:1178`）が起動していない場合は、[ローカル SKK サーバー](#ローカル-skk-サーバーcrvskkserv)で常駐させるか、設定ダイアログ「辞書」タブでサーバーを無効化。サーバー停止中は毎変換で `timeout=1500`（ms）待つため、使わないなら無効化を推奨 |
+| Google 候補が「2回に1回」しか出ない | yaskkserv2 が Google を HTTPS 新規接続で引くためコールドがタイムアウト超過しキャッシュ温め現象になる。**[crvskkserv](#ローカル-skk-サーバーcrvskkserv)（Google を HTTP で取得）への切替**を推奨。yaskkserv2 継続なら起動に `--google-use-http` を追加 |
 | Google フォールバックの候補が出ない | CorvusSKK の `timeout`（1500ms）がサーバーの `--google-timeout-milliseconds`（既定 1000ms）より短いと打ち切られる。Google 側を変えたら `timeout` も見直す。完全オフライン運用なら `--google-*` を外し `timeout` を下げる |
 | サーバーの候補が文字化けする / 出ない | エンコーディング不一致。[コマンドラインリファレンス](#コマンドラインリファレンス)の「3 点セットで揃える」を確認 |
 | 絵文字が変換できない | Direct2D ＋ カラーフォントの表示設定が必要（この設定では有効済み） |
@@ -563,6 +602,7 @@ git commit -m "変更内容の説明"
 - [CorvusSKK](https://github.com/nathancorvussolis/corvusskk) — 本体・公式ドキュメント
 - [CorvusSKK Releases](https://github.com/nathancorvussolis/corvusskk/releases) — インストーラー
 - [skk-dev/dict](https://github.com/skk-dev/dict) — SKK 辞書（この設定の辞書取得元）
-- [yaskkserv2](https://github.com/wachikun/yaskkserv2) — ローカル SKK サーバー
+- [crvskkserv](https://github.com/nathancorvussolis/crvskkserv) — Windows ネイティブの SKK サーバー（SKK 辞書／SKK プロキシ／Google CGI API）
+- [yaskkserv2](https://github.com/wachikun/yaskkserv2) — ローカル SKK サーバー（Rust・オフライン高速）
 - [HackGen](https://github.com/yuru7/HackGen) — 候補一覧用フォント
 - [ddskk](https://github.com/skk-dev/ddskk) — Emacs 版 SKK（SKK 操作体系の本家）
